@@ -1,6 +1,8 @@
 ﻿using Bulky.DataAccess.Repository.IRepository;
 using Bulky.Models;
+using Bulky.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace BulkyWeb.Areas.Admin.Controllers
 {
@@ -8,67 +10,135 @@ namespace BulkyWeb.Areas.Admin.Controllers
     public class ProductController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
-        public ProductController(IUnitOfWork unitOfWork)
+        private readonly IWebHostEnvironment _webHostEnvironment;
+        public ProductController(IUnitOfWork unitOfWork, IWebHostEnvironment webHostEnvironment)
         {
             _unitOfWork = unitOfWork;
+            _webHostEnvironment= webHostEnvironment;
         }
         public IActionResult Index()
         {
-            List<Product> objProdectList = _unitOfWork.Product.GetAll().ToList();
+            List<Product> objProdectList = _unitOfWork.Product.GetAll(includeProperties:"Category").ToList();
             return View(objProdectList);
         }
-        public IActionResult Create()
-        {
-            return View();
-        }
-        [HttpPost]
-        public IActionResult Create(Product product)
+        public IActionResult UpSert(int? id)
         {
            
+          
+            ProdcutVM prodcutVM = new ProdcutVM()
+            {
+                CategoryList = _unitOfWork.Category.GetAll().Select(u =>
+           new SelectListItem
+           {
+               Text = u.Name,
+               Value=u.Id.ToString(),
+           }),
+                Prodcut =new Product()
+            };
+            if (id == null || id == 0)
+            {
+                //create
+                return View(prodcutVM);
 
+            }
+            else
+            {
+                //update
+                prodcutVM.Prodcut=_unitOfWork.Product.Get(u => u.Id == id);
+                return View(prodcutVM);
+            }
+           
+        }
+        [HttpPost]
+        public IActionResult UpSert(ProdcutVM product,IFormFile? file)
+        {
+           
+          
             if (ModelState.IsValid)
             {
-                _unitOfWork.Product.Add(product);
+                string wwwRootPath = _webHostEnvironment.WebRootPath;
+                if (file != null)
+                {
+                    string fileName= Guid.NewGuid().ToString()+Path.GetExtension(file.FileName);
+                    string prodouctPath = Path.Combine(wwwRootPath, @"images\product");
+
+
+                    if (!string.IsNullOrEmpty(product.Prodcut.ImageUrl))
+                    {
+                        var oldImagePath=
+                            Path.Combine(wwwRootPath,product.Prodcut.ImageUrl.TrimStart('\\'));
+                        if (System.IO.File.Exists(oldImagePath))
+                        {
+                            System.IO.File.Delete(oldImagePath);
+                        }
+                    }
+                    using (var fileStream = new FileStream(Path.Combine(prodouctPath, fileName), FileMode.Create))
+                    {
+                        file.CopyTo(fileStream);
+                    }
+                    product.Prodcut.ImageUrl = "/images/product/" + fileName;
+
+                }
+
+                if (product.Prodcut.Id==0)
+                {
+                    _unitOfWork.Product.Add(product.Prodcut);
+                }
+                  else
+                {
+                    _unitOfWork.Product.Update(product.Prodcut);
+                }
                 _unitOfWork.Save();
                 TempData["success"] = "Category Create Successfully";
                 return RedirectToAction("Index");
 
             }
-            return View();
-        }
-
-        public IActionResult Edit(int? id)
-        {
-            if (id == null || id == 0)
+            else
             {
 
-                return NotFound();
+                product.CategoryList = _unitOfWork.Category.GetAll().Select(u =>
+               new SelectListItem
+               {
+                   Text = u.Name,
+                   Value=u.Id.ToString(),
+               });
+                return View(product);
             }
-            Product? prodctFromDb = _unitOfWork.Product.Get(u => u.Id == id);
-            if (prodctFromDb == null)
-            {
-                return NotFound();
-            }
-            return View(prodctFromDb);
-
+            
         }
 
-        [HttpPost]
-        public IActionResult Edit(Product product)
-        {
+        //public IActionResult Edit(int? id)
+        //{
+        //    if (id == null || id == 0)
+        //    {
+
+        //        return NotFound();
+        //    }
+        //    Product? prodctFromDb = _unitOfWork.Product.Get(u => u.Id == id);
+        //    if (prodctFromDb == null)
+        //    {
+        //        return NotFound();
+        //    }
+        //    return View(prodctFromDb);
+
+        //}
+
+        //[HttpPost]
+        //public IActionResult Edit(Product product)
+        //{
 
 
-            if (ModelState.IsValid)
-            {
-                _unitOfWork.Product.Update(product);
-                _unitOfWork.Save();
-                TempData["success"] = "Category Update Successfully";
+        //    if (ModelState.IsValid)
+        //    {
+        //        _unitOfWork.Product.Update(product);
+        //        _unitOfWork.Save();
+        //        TempData["success"] = "Category Update Successfully";
 
-                return RedirectToAction("Index");
+        //        return RedirectToAction("Index");
 
-            }
-            return View();
-        }
+        //    }
+        //    return View();
+        //}
 
         public IActionResult Delete(int? id)
         {
@@ -104,6 +174,16 @@ namespace BulkyWeb.Areas.Admin.Controllers
 
 
         }
+
+        #region APICALL
+
+        [HttpGet]
+        public IActionResult GetAll()
+        {
+            List<Product> objProdectList = _unitOfWork.Product.GetAll(includeProperties: "Category").ToList();
+            return Json(new { data = objProdectList });
+        }
+        #endregion
     }
 }
 

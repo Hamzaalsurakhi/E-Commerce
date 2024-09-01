@@ -2,7 +2,9 @@
 using Bulky.DataAcess.Data;
 using Bulky.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.IdentityModel.Abstractions;
+using System.Collections.Generic;
 
 namespace BulkyWeb.Areas.Admin.Controllers
 {
@@ -18,10 +20,13 @@ namespace BulkyWeb.Areas.Admin.Controllers
         public IActionResult Index()
         {
             List<Category> objCategoryList = _unitOfWork.Category.GetAll().ToList();
+           
+
             return View(objCategoryList);
         }
         public IActionResult Create()
         {
+            
             return View();
         }
         [HttpPost]

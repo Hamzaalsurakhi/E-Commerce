@@ -1,0 +1,137 @@
+﻿@model ProdcutVM
+
+<div class="card shadow border-0 my-4">
+    <div class="card-header bg-secondary bg-gradient m-lg-0 py-3">
+        <div class="row">
+            <div class="col-12 text-center">
+                <h2 class="text-white py-2">@(Model.Prodcut.Id !=0 ?"Update":"Create")   Prodecut</h2>
+            </div>
+        </div>
+    </div>
+    <div class="card-body p-4">
+
+
+        <form method="post" class="row" enctype="multipart/form-data">
+            <input asp-for="Prodcut.Id" hidden />
+            <input asp-for="Prodcut.ImageUrl" hidden />
+            <div class="row">
+                <div class="col-10">
+                    <div class="border p-3 " style="background-color:#FFF">
+
+                        <div class="form-floating py-2 col-12">
+                            <label asp-for="Prodcut.Title" class="ms-2"></label>
+                            <input asp-for="Prodcut.Title" class="form-control border-0 shadow" />
+                            <span asp-validation-for="Prodcut.Title" class="text-danger"></span>
+
+                        </div>
+
+                        <div class="mb-3 row p-1">
+                            <label asp-for="Prodcut.Description" class="ms-2 text-muted"></label>
+                            <textarea asp-for="Prodcut.Description" class="form-control border-0 shadow"></textarea>
+
+                        </div>
+                        <div class="mb-3 row p-1">
+                            <label asp-for="Prodcut.ISBN" class="ms-2"></label>
+
+                            <input asp-for="Prodcut.ISBN" class="form-control border-0 shadow" />
+                            <span asp-validation-for="Prodcut.ISBN" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3 row p-1">
+                            <label asp-for="Prodcut.Author" class="ms-2"></label>
+
+                            <input asp-for="Prodcut.Author" class="form-control border-0 shadow" />
+                            <span asp-validation-for="Prodcut.Author" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3 row p-1">
+                            <label asp-for="Prodcut.ListPrice" class="ms-2"></label>
+
+                            <input asp-for="Prodcut.ListPrice" class="form-control border-0 shadow" />
+                            <span asp-validation-for="Prodcut.ListPrice" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3 row p-1">
+                            <label asp-for="Prodcut.Price" class="ms-2"></label>
+
+                            <input asp-for="Prodcut.Price" class="form-control border-0 shadow" />
+                            <span asp-validation-for="Prodcut.Price" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3 row p-1">
+                            <label asp-for="Prodcut.Price50" class="ms-2"></label>
+
+                            <input asp-for="Prodcut.Price50" class="form-control border-0 shadow" />
+                            <span asp-validation-for="Prodcut.Price50" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3 row p-1">
+                            <label asp-for="Prodcut.Price100" class="ms-2"></label>
+
+                            <input asp-for="Prodcut.Price100" class="form-control border-0 shadow" />
+                            <span asp-validation-for="Prodcut.Price100" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3 row p-1">
+                            <label asp-for="Prodcut.CategoryId" class="ms-2"></label>
+
+                            <select asp-for="@Model.Prodcut.CategoryId" class="form-select border-0 shadow" asp-items="@Model.CategoryList">
+
+                                <option disabled selected>--select Category--- </option>
+                            </select>
+                            <span asp-validation-for="Prodcut.CategoryId" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3 row p-1">
+                            <label asp-for="Prodcut.ImageUrl" class="ms-2"></label>
+                            <input type="file" name="file" class="form-control border-0 shadow" />
+
+                        </div>
+                        <div class="row">
+                            <div class="col-6 col-md-3 p-1">
+                                <button type="submit" class="btn btn-primary form-control ">Create</button>
+
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <a asp-controller="Product" asp-action="Index" class="btn  btn-outline-primary form-control ">Back To List</a>
+
+                            </div>
+                        </div>
+
+
+
+
+                    </div>
+                </div>
+                <div class="col-2">
+                    <img src="@Url.Content(Model.Prodcut.ImageUrl)" width="100%"
+                         style="border-radius: 5px; border: 1px solid #bbb9b9;" />
+                </div>
+
+
+
+            </div>
+           
+        </form>
+
+
+    </div>
+</div>
+
+
+
+@section Scripts {
+    
+        <script>
+            tinymce.init({
+                selector: 'textarea',
+                plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount checklist mediaembed casechange export formatpainter pageembed linkchecker a11ychecker tinymcespellchecker permanentpen powerpaste advtable advcode editimage advtemplate ai mentions tinycomments tableofcontents footnotes mergetags autocorrect typography inlinecss markdown',
+                toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat',
+                tinycomments_mode: 'embedded',
+                tinycomments_author: 'Author name',
+                mergetags_list: [
+                    { value: 'First.Name', title: 'First Name' },
+                    { value: 'Email', title: 'Email' },
+                ],
+                ai_request: (request, respondWith) => respondWith.string(() => Promise.reject("See docs to implement AI Assistant")),
+            });
+    </script>
+    
+    @{
+        <partial name="_ValidationScriptsPartial" />
+    }
+}
+
